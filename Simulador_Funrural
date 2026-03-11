@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulador Funrural 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f1f5f9; color: #1a1a2e; min-height: 100vh; }
+
+    header { background: #1e3a5f; color: #fff; padding: 32px 24px; text-align: center; }
+    header h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    header p { font-size: 14px; color: #93c5fd; }
+
+    .badge { display: inline-block; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-top: 12px; }
+
+    .container { max-width: 720px; margin: 32px auto; padding: 0 16px 48px; }
+
+    .card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #1e3a5f; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 13px; font-weight: 600; color: #374151; transition: all .2s; }
+    .tab.active { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #1e3a5f; color: #fff; padding: 10px 12px; text-align: left; }
+    th:first-child { border-radius: 6px 0 0 0; }
+    th:last-child { border-radius: 0 6px 0 0; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .total td { background: #1e3a5f !important; color: #fff; font-weight: 700; }
+    .up { color: #dc2626; font-weight: 700; }
+    .neutral { color: #6b7280; }
+
+    .sim-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 24px; }
+    .sim-card h2 { color: #166534; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .chip { padding: 6px 14px; border-radius: 20px; border: 1px solid #86efac; background: #fff; cursor: pointer; font-size: 13px; font-weight: 600; color: #166534; transition: all .2s; }
+    .chip.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+
+    .custom-input { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .custom-input label { font-size: 13px; color: #166534; font-weight: 600; white-space: nowrap; }
+    .custom-input input { padding: 8px 12px; border-radius: 8px; border: 1px solid #86efac; font-size: 14px; width: 180px; outline: none; }
+
+    .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .result-box { border-radius: 10px; padding: 14px 16px; }
+    .result-box .label { font-size: 12px; color: #555; margin-bottom: 4px; }
+    .result-box .value { font-size: 20px; font-weight: 700; }
+    .box-antes { background: #dbeafe; }
+    .box-antes .value { color: #1e3a5f; }
+    .box-depois { background: #fee2e2; }
+    .box-depois .value { color: #991b1b; }
+    .box-diff { background: #fef3c7; }
+    .box-diff .value { color: #92400e; }
+
+    .note { font-size: 12px; color: #6b7280; margin-top: 12px; }
+
+    .info { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #1e40af; margin-bottom: 20px; }
+
+    footer { text-align: center; font-size: 12px; color: #94a3b8; padding: 24px 16px; }
+    footer a { color: #3b82f6; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Simulador de Impacto — Funrural 2026</h1>
+  <p>Entenda como a Lei Complementar nº 224/2025 afeta o cálculo do Funrural na sua operação</p>
+  <span class="badge">⚠️ Nova alíquota a partir de 1º de abril de 2026</span>
+</header>
+
+<div class="container">
+
+  <div class="info">
+    A LC nº 224/2025 determinou a redução de 10% sobre benefícios fiscais federais. Como o Funrural é classificado como benefício fiscal, suas alíquotas serão majoradas a partir de <strong>1º de abril de 2026</strong> para quem recolhe sobre a <strong>receita bruta</strong>.
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="setTipo('pf', this)">👤 Pessoa Física / Segurado Especial</button>
+    <button class="tab" onclick="setTipo('pj', this)">🏢 Pessoa Jurídica</button>
+  </div>
+
+  <!-- Tabela comparativa -->
+  <div class="card">
+    <h2>📊 Comparativo de Alíquotas</h2>
+    <table id="tabela"></table>
+  </div>
+
+  <!-- Simulador -->
+  <div class="sim-card">
+    <h2>💰 Simule o impacto no seu faturamento</h2>
+    <div class="chips" id="chips"></div>
+    <div class="custom-input">
+      <label>Ou digite um valor (R$):</label>
+      <input type="number" id="customVal" placeholder="Ex: 2500000" oninput="calcular()" />
+    </div>
+    <div class="results" id="results"></div>
+    <p class="note">* Simulação sobre receita bruta de comercialização. Valores aproximados para fins de planejamento.</p>
+  </div>
+
+</div>
+
+<footer>
+  Base legal: <a href="https://www.planalto.gov.br/ccivil_03/leis/lcp/Lcp224.htm" target="_blank">Lei Complementar nº 224/2025</a> &nbsp;·&nbsp;
+  Cartilha: <a href="https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/perguntas-e-respostas/beneficios-fiscais/perguntas-e-respostas-reducao-de-beneficios-v2.pdf" target="_blank">Receita Federal — Perguntas e Respostas</a>
+</footer>
+
+<script>
+  const dados = {
+    pf: {
+      rows: [
+        { nome: "Contribuição Previdenciária", antes: 1.20, depois: 1.32 },
+        { nome: "RAT", antes: 0.10, depois: 0.11 },
+        { nome: "SENAR", antes: 0.20, depois: 0.20 },
+      ],
+      totalAntes: 1.50,
+      totalDepois: 1.63,
+    },
+    pj: {
+      rows: [
+        { nome: "Contribuição Previdenciária", antes: 1.70, depois: 1.87 },
+        { nome: "RAT", antes: 0.10, depois: 0.11 },
+        { nome: "SENAR", antes: 0.25, depois: 0.25 },
+      ],
+      totalAntes: 2.05,
+      totalDepois: 2.23,
+    }
+  };
+
+  const chips = [500000, 1000000, 5000000, 10000000];
+  let tipo = "pf";
+  let simVal = 1000000;
+
+  function fmt(v) {
+    return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+  function pct(v) { return v.toFixed(2).replace(".", ",") + "%"; }
+
+  function setTipo(t, el) {
+    tipo = t;
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    el.classList.add("active");
+    renderTabela();
+    renderChips();
+    calcular();
+  }
+
+  function renderTabela() {
+    const d = dados[tipo];
+    let html = `<tr><th>Componente</th><th>Até mar/2026</th><th>A partir abr/2026</th><th>Variação</th></tr>`;
+    d.rows.forEach(r => {
+      const delta = r.depois - r.antes;
+      html += `<tr>
+        <td>${r.nome}</td>
+        <td>${pct(r.antes)}</td>
+        <td>${pct(r.depois)}</td>
+        <td>${delta === 0 ? `<span class="neutral">sem alteração</span>` : `<span class="up">+${pct(delta)}</span>`}</td>
+      </tr>`;
+    });
+    html += `<tr class="total">
+      <td>TOTAL</td>
+      <td>${pct(d.totalAntes)}</td>
+      <td>${pct(d.totalDepois)}</td>
+      <td style="color:#fca5a5">+${pct(d.totalDepois - d.totalAntes)}</td>
+    </tr>`;
+    document.getElementById("tabela").innerHTML = html;
+  }
+
+  function renderChips() {
+    document.getElementById("chips").innerHTML = chips.map(v =>
+      `<button class="chip ${simVal === v ? 'active' : ''}" onclick="setChip(${v}, this)">${fmt(v)}</button>`
+    ).join("");
+  }
+
+  function setChip(v, el) {
+    simVal = v;
+    document.getElementById("customVal").value = "";
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    el.classList.add("active");
+    calcular();
+  }
+
+  function calcular() {
+    const custom = parseFloat(document.getElementById("customVal").value) || 0;
+    const base = custom > 0 ? custom : simVal;
+    const d = dados[tipo];
+    const antes = base * d.totalAntes / 100;
+    const depois = base * d.totalDepois / 100;
+    const diff = depois - antes;
+
+    document.getElementById("results").innerHTML = `
+      <div class="result-box box-antes"><div class="label">Funrural Antes</div><div class="value">${fmt(antes)}</div></div>
+      <div class="result-box box-depois"><div class="label">Funrural Depois</div><div class="value">${fmt(depois)}</div></div>
+      <div class="result-box box-diff"><div class="label">Diferença por período</div><div class="value">${fmt(diff)}</div></div>
+    `;
+  }
+
+  renderTabela();
+  renderChips();
+  calcular();
+</script>
+</body>
+</html>
